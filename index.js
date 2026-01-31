@@ -3,7 +3,6 @@ const fs = require('fs');
 const path = require('path');
 const colors = require('colors');
 
-// Renk tanımlamaları
 const colorsConfig = {
     red: colors.red,
     green: colors.green,
@@ -12,7 +11,6 @@ const colorsConfig = {
     reset: colors.reset
 };
 
-// Yardımcı fonksiyonlar
 const saveJson = (data, filename) => {
     try {
         fs.writeFileSync(filename, JSON.stringify(data, null, 4));
@@ -90,7 +88,6 @@ class DiscordScraper {
         }
     }
 
-    // Banner fonksiyonu: Düzgün ASCII ve satır başına renkli
     displayBanner() {
         const morbidColors = [
             colors.red, colors.green, colors.yellow, colors.blue, colors.magenta, colors.cyan, colors.white
@@ -161,15 +158,13 @@ class DiscordScraper {
     processUserBadges(author) {
         const username = author.username;
         const flags = author.public_flags || 0;
-        
-        // Özel badge'leri kontrol et
+
         let badges = Object.keys(this.BADGES)
             .map(bit => parseInt(bit))
             .filter(bit => flags & bit)
             .map(bit => this.BADGES[bit])
             .join('');
 
-        // Özel badge yoksa username uzunluğuna göre badge ata
         if (!badges) {
             if (username.length === 2) {
                 badges = "<:2L:1388122321033629789>";
@@ -195,24 +190,23 @@ class DiscordScraper {
             this.seenUsers.add(userId);
             const badges = this.processUserBadges(author);
 
-            // Sadece özel badge'leri veya kısa username'lileri işle
+
             if (badges === "No badge" && author.username.length > 3) {
-                // Rozeti olmayan kullanıcıyı sadece terminale yaz
+
                 console.log(colorsConfig.red(`bu kullanıcıda bulamadık ${userId} - ${author.username}`));
                 continue;
             }
 
-            // Rozet bulunduysa terminale bildir (sadece bu satır yeşil olacak)
+            
             console.log(colorsConfig.green(`Rozet Bulundu ${userId} - ${author.username}`));
 
-            // Webhook'a gönderilecek yeni format
+          
             const content = `> ** ${userId} - ${author.username} - <@${userId}> Rozet:** ${badges}`;
 
-            // Webhook'a gönder
+          
             this.sendToWebhook(content);
 
-            // Terminale tekrar log basma!
-            // console.log(colorsConfig.green(content)); // <-- Bunu kaldırdık
+            
 
             this.totalProcessed++;
         }
@@ -257,7 +251,7 @@ class DiscordScraper {
 
             await this.processMessages(messages);
             
-            // Küçük bir bekleme süresi ekle
+           
             await this.delay(1000);
         }
 
@@ -267,7 +261,7 @@ class DiscordScraper {
     }
 }
 
-// Hata yakalama
+
 process.on('unhandledRejection', (error) => {
     console.error(colorsConfig.red('İşlenmemiş Promise hatası:'), error);
     process.exit(1);
@@ -278,7 +272,7 @@ process.on('uncaughtException', (error) => {
     process.exit(1);
 });
 
-// Ana fonksiyon
+
 async function main() {
     try {
         const scraper = new DiscordScraper();
@@ -289,9 +283,10 @@ async function main() {
     }
 }
 
-// Uygulamayı başlat
+
 if (require.main === module) {
     main();
 }
+
 
 module.exports = DiscordScraper;
